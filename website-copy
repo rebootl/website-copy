@@ -133,7 +133,7 @@ create_local_db() {
         IDENTIFIED BY '$DB_LOCAL_PASS';
       GRANT ALL PRIVILEGES ON $DB_LOCAL_NAME.* TO '$DB_LOCAL_USER'@'localhost';
       FLUSH PRIVILEGES;
-    EOF
+EOF
     check_exit $?
 }
 
