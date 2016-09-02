@@ -1,0 +1,48 @@
+#!/bin/bash (only for syntax highlighting, should not be executable)
+#
+# per-website settings for website-copy script
+# (one config per website)
+#
+# website: example
+#
+
+# per-website settings
+
+# local settings
+
+# local path of the website
+# usually /var/www/something,
+# website files will be written there using sudo -u with
+# below local user (owner/group)
+WEBSITE_LOCAL_PATH="/var/www/website1-testcopy"
+WEBSITE_LOCAL_USER="www-data"
+
+# exisiting local path of override files
+# files and directories in this path are
+# copied to the website local path,
+# use this to overwrite config files etc.
+OVERRIDE_FILES=true
+OVERRIDE_PATH="/var/www/website1-testcopy-override"
+
+# local database information
+# a new database will be created if it not already exists,
+# and remote database tables are inserted here
+COPY_DB=true
+DB_LOCAL_NAME="joomla_website1_test"
+DB_LOCAL_USER="joomlauser"
+DB_LOCAL_PASS="secret1.x"
+
+# automatically edit the joomla configuration.php
+AUTO_EDIT_JOOMLA_CONFIG=true
+
+# remote settings
+
+# server and path of the website to copy
+# rsync is used to log-in and copy the files from there
+WEBSITE_REMOTE_SERVER="www.example.ch"
+WEBSITE_REMOTE_PATH="/var/www/website1"
+
+# remote database information
+# the database is copied encrypted and compressed
+DB_SERVER="db.example.ch"
+DB_NAME="joomla_website1"
