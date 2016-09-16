@@ -16,6 +16,7 @@
 # below local user (owner/group)
 WEBSITE_LOCAL_PATH="/var/www/website1-testcopy"
 WEBSITE_LOCAL_USER="www-data"
+WEBSITE_LOCAL_GROUP="www-data"
 
 # exisiting local path of override files
 # files and directories in this path are
@@ -44,5 +45,5 @@ WEBSITE_REMOTE_PATH="/var/www/website1"
 
 # remote database information
 # the database is copied encrypted and compressed
-DB_SERVER="db.example.ch"
-DB_NAME="joomla_website1"
+DB_REMOTE_SERVER="db.example.ch"
+DB_REMOTE_NAME="joomla_website1"

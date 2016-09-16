@@ -90,7 +90,7 @@ check_exit() {
         echo "oops, something went wrong, exiting."
         exit 1
     else
-        echo "done."
+        echo -e "done.\n"
     fi
 }
 
@@ -100,21 +100,26 @@ copy_files() {
     # -r recursive
     # -l copy symlinks as symlinks
     # -p preserve permissions
+    # --chown set user/group
+    # --owner --group needed for --chown to work
+    #         - https://lists.samba.org/archive/rsync/2013-October/028753.html
     #
     # remote path includes always a trailing slash,
     # by `parameter substitution`, e.g.: "${var%/}"/
     # stripping if present and readding to avoid doubles
     echo "copying files..."
-    sudo -u "$WEBSITE_LOCAL_USER". \
-        rsync -rlpv "$ME"@"$WEBSITE_REMOTE_SERVER":"${WEBSITE_REMOTE_PATH%/}"/ \
-        "$WEBSITE_LOCAL_PATH"
+    sudo \
+        rsync -rlp --owner --group \
+            --chown="$WEBSITE_LOCAL_USER:$WEBSITE_LOCAL_GROUP" \
+            "$ME"@"$WEBSITE_REMOTE_SERVER":"${WEBSITE_REMOTE_PATH%/}"/ \
+            "$WEBSITE_LOCAL_PATH"
     check_exit $?
 }
 
 override_files() {
     # copying files from override directory
     echo "copying files from override directory..."
-    sudo -u "$WEBSITE_LOCAL_USER". \
+    sudo -u "$WEBSITE_LOCAL_USER" \
         cp -dpr "${OVERRIDE_PATH%/}"/. "$WEBSITE_LOCAL_PATH"
     check_exit $?
 }
@@ -122,18 +127,23 @@ override_files() {
 create_local_db() {
     # --> must create local db first ????
     # create new db on local instance
+    #
     # mysql > 5.7.6
+    #    CREATE USER IF NOT EXISTS ${DB_LOCAL_USER} IDENTIFIED BY ${DB_LOCAL_PASS};
+    #    GRANT ALL PRIVILEGES ON ${DB_LOCAL_NAME}.* TO ${DB_LOCAL_USER}@'localhost';
+    # --> doesn't work
+    #
     # for mysql below this use something like:
     # GRANT ALL ON `database`.* TO 'user'@'localhost' IDENTIFIED BY 'password';
+    # ==> works
+    #
     # - http://stackoverflow.com/questions/13357760/mysql-create-user-if-not-exists#
     echo "creating local database..."
-    mysql <<EOF
-      CREATE DATABASE IF NOT EXISTS '$DB_LOCAL_NAME';
-      CREATE USER IF NOT EXISTS '$DB_LOCAL_USER'@'localhost'
-        IDENTIFIED BY '$DB_LOCAL_PASS';
-      GRANT ALL PRIVILEGES ON $DB_LOCAL_NAME.* TO '$DB_LOCAL_USER'@'localhost';
-      FLUSH PRIVILEGES;
-EOF
+    mysql <<HERE
+        CREATE DATABASE IF NOT EXISTS ${DB_LOCAL_NAME};
+        GRANT ALL ON ${DB_LOCAL_NAME}.* TO ${DB_LOCAL_USER}@'localhost' IDENTIFIED BY '${DB_LOCAL_PASS}';
+        FLUSH PRIVILEGES;
+HERE
     check_exit $?
 }
 
@@ -146,8 +156,8 @@ copy_database() {
     # tested: ssh r.. "mysqldump joomla_....| gzip" > joomla_.....dump.gz
     # works!
     echo "copying database from remote..."
-    ssh "$DB_REMOTE_SERVER" "mysqldump $DB_NAME | gzip -c" \
-        | gzip -d > mysql "$DB_LOCAL_NAME"
+    ssh "$DB_REMOTE_SERVER" "mysqldump $DB_REMOTE_NAME | gzip -c" \
+        | gzip -d | mysql "$DB_LOCAL_NAME"
     check_exit $?
 }
 
@@ -157,6 +167,22 @@ edit_joomla_config() {
     # sed "s/\$user = '[^']*'/\$user = \'$loon\'/" configuration.php
     # or:
     # sed "/\$user = /s/'[^']*'/'$loon'/" configuration.php
+    echo "auto-edit joomla config..."
+    sudo sed -i_$(date +%Y-%m-%d.production_orig) "/\$host = /s/'[^']*'/'localhost'/" "${WEBSITE_LOCAL_PATH%/}"/configuration.php
+    sudo sed -i "/\$user = /s/'[^']*'/'$DB_LOCAL_USER'/" "${WEBSITE_LOCAL_PATH%/}"/configuration.php
+    sudo sed -i "/\$password = /s/'[^']*'/'$DB_LOCAL_PASS'/" "${WEBSITE_LOCAL_PATH%/}"/configuration.php
+    sudo sed -i "/\$db = /s/'[^']*'/'$DB_LOCAL_NAME'/" "${WEBSITE_LOCAL_PATH%/}"/configuration.php
+    LOGPATH="$WEBSITE_LOCAL_PATH/logs"
+    sudo sed -i \
+        "s!\$log_path = '[^']*'!\$log_path = '${WEBSITE_LOCAL_PATH%/}/logs'!" \
+        "${WEBSITE_LOCAL_PATH%/}"/configuration.php
+    sudo sed -i \
+        "s!\$tmp_path = '[^']*'!\$tmp_path = '${WEBSITE_LOCAL_PATH%/}/tmp'!" \
+        "${WEBSITE_LOCAL_PATH%/}"/configuration.php
+#    sudo sed -i "/\$log_path = /s/'[^']*'/'$LOGPATH'/" "${WEBSITE_LOCAL_PATH%/}"/configuration.php
+#    TMPPATH="${WEBSITE_LOCAL_PATH%/}/tmp"
+#    sudo sed -i "/\$tmp_path = /s/'[^']*'/'$TMPPATH'/" "${WEBSITE_LOCAL_PATH%/}"/configuration.php
+
 }
 
 
