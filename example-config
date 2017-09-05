@@ -14,6 +14,7 @@
 # usually /var/www/something,
 # website files will be written there using sudo -u with
 # below local user (owner/group)
+COPY_FILES=true
 WEBSITE_LOCAL_PATH="/var/www/website1-testcopy"
 WEBSITE_LOCAL_USER="www-data"
 WEBSITE_LOCAL_GROUP="www-data"

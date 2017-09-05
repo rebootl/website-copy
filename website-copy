@@ -185,8 +185,9 @@ edit_joomla_config() {
 
 }
 
-
-copy_files
+if $COPY_FILES; then
+    copy_files
+fi
 
 if $OVERRIDE_FILES; then
     override_files
