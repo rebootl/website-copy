@@ -10,29 +10,29 @@ e.g.
 
 Scenario 1)
 
-  production site
-    - web server (remote)
-    - db server (remote)
+    production site
+      - web server (remote)
+      - db server (remote)
 
-  test site (copy created by script)
-    - web and db server (local)
+    test site (copy created by script)
+      - web and db server (local)
 
-script naming conv.: website-copymod-r-l-rdb-ldb
+script naming conv.: `website-copymod-r-l-rdb-ldb`
 
-where r-l stands for remote-website to local-website
-and rdb-ldb for remote-db to local-db
+where `-r-l` stands for remote-website to local-website
+and `-rdb-ldb` for remote-db to local-db
 
 Scenario 2)
 
-  production site
-    - web server (local)
-    - db server (remote)
+    production site
+      - web server (local)
+      - db server (remote)
 
-  test site
-    - web server (local)
-    - db server (remote)
+    test site
+      - web server (local)
+      - db server (remote)
 
-script naming conv.: website-copymod-l-l-rdb-rdb
+script naming conv.: `website-copymod-l-l-rdb-rdb`
 
 
 usage (always on local server);
