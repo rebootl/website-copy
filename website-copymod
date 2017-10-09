@@ -1,0 +1,32 @@
+#!/bin/bash
+#
+#
+# module -l-l-rdb-rdb
+#
+# website local-to-local
+# database remote-to-remote
+#
+# expected config options
+#
+# - COPY_FILES
+# - WEBSITE_ORIG_PATH
+# - WEBSITE_COPY_PATH
+#
+# for override files:
+# - WEBSITE_LOCAL_USER
+# - OVERRIDE_PATH
+#
+
+. functions
+
+check_args "$@"
+
+if $COPY_FILES; then
+    copy_files_local
+fi
+
+if $OVERRIDE_FILES; then
+    override_files
+fi
+
+echo "finished!"
