@@ -13,6 +13,8 @@ check_args() {
         echo "error: file not found: $1"
         exit 1
     fi
+    # import settings
+    . "$1"
 }
 
 check_exit() {
@@ -26,7 +28,7 @@ check_exit() {
 }
 
 copy_files() {
-    # copy files on local server using rsync
+    # copy files from server using rsync
     # rsync opts
     # -r recursive
     # -l copy symlinks as symlinks
@@ -48,7 +50,7 @@ copy_files() {
 }
 
 copy_files_local() {
-    # copy files from server using rsync
+    # copy files on local server using rsync
     # rsync opts
     # -a archive mode; equals -rlptgoD (no -H,-A,-X)
     # -u skip files that are newer on the receiver
@@ -73,7 +75,6 @@ override_files() {
 }
 
 create_local_db() {
-    # --> must create local db first ????
     # create new db on local instance
     #
     # mysql > 5.7.6
@@ -90,6 +91,28 @@ create_local_db() {
     mysql <<HERE
         CREATE DATABASE IF NOT EXISTS ${DB_LOCAL_NAME};
         GRANT ALL ON ${DB_LOCAL_NAME}.* TO ${DB_LOCAL_USER}@'localhost' IDENTIFIED BY '${DB_LOCAL_PASS}';
+        FLUSH PRIVILEGES;
+HERE
+    check_exit $?
+}
+
+create_remote_db() {
+    # create new db on remote instance
+    #
+    # mysql > 5.7.6
+    #    CREATE USER IF NOT EXISTS ${DB_LOCAL_USER} IDENTIFIED BY ${DB_LOCAL_PASS};
+    #    GRANT ALL PRIVILEGES ON ${DB_LOCAL_NAME}.* TO ${DB_LOCAL_USER}@'localhost'
+    # --> doesn't work
+    #
+    # for mysql below this use something like:
+    # GRANT ALL ON `database`.* TO 'user'@'localhost' IDENTIFIED BY 'password';
+    # ==> works
+    #
+    # - http://stackoverflow.com/questions/13357760/mysql-create-user-if-not-exists#
+    echo "creating remote database..."
+    mysql -h "$DB_SERVER" -u "$DB_USER" -p <<HERE
+        CREATE DATABASE IF NOT EXISTS ${DB_COPY_NAME};
+        GRANT ALL ON ${DB_COPY_NAME}.* TO ${DB_COPY_USER}@'${DB_COPY_ACCESS_HOST}' IDENTIFIED BY '${DB_COPY_PASS}';
         FLUSH PRIVILEGES;
 HERE
     check_exit $?

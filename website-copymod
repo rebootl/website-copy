@@ -16,6 +16,12 @@
 # - WEBSITE_LOCAL_USER
 # - OVERRIDE_PATH
 #
+# for copy database:
+# - DB_SERVER
+# - DB_USER
+# - DB_COPY_NAME
+# - DB_COPY_USER
+# - DB_ACCESS_HOST
 
 . functions
 
@@ -27,6 +33,10 @@ fi
 
 if $OVERRIDE_FILES; then
     override_files
+fi
+
+if $COPY_DB; then
+    create_remote_db
 fi
 
 echo "finished!"
