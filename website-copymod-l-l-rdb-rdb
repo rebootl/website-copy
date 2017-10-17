@@ -2,14 +2,12 @@
 #
 # modular script to copy websites
 #
-# module template
-# create a copy and adapt for respective use case
+# module -l-l-rdb-rdb
 #
-# e.g.
 # website local-to-local
 # database remote-to-remote
 #
-# expected config options (example)
+# expected config options
 #
 # - COPY_FILES
 # - WEBSITE_ORIG_PATH
@@ -29,29 +27,26 @@
 # - DB_COPY_USER
 # - DB_COPY_ACCESS_HOST
 # - DB_COPY_PASS
-#
 
 . functions
 
 check_args "$@"
 
-# insert functions below
+if $COPY_FILES; then
+    copy_files_local
+fi
 
-#if $COPY_FILES; then
-#    copy_files_local
-#fi
+if $OVERRIDE_FILES; then
+    override_files
+fi
 
-#if $OVERRIDE_FILES; then
-#    override_files
-#fi
+if $COPY_DB; then
+    create_remote_db
+    copy_database_remote
+fi
 
-#if $COPY_DB; then
-#    create_remote_db
-#    copy_database_remote
-#fi
-
-#if $AUTO_EDIT_JOOMLA_CONFIG; then
-#    edit_joomla_config
-#fi
+if $AUTO_EDIT_JOOMLA_CONFIG; then
+    edit_joomla_config
+fi
 
 echo "finished!"

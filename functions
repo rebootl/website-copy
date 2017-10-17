@@ -110,7 +110,7 @@ create_remote_db() {
     #
     # - http://stackoverflow.com/questions/13357760/mysql-create-user-if-not-exists#
     echo "creating remote database..."
-    mysql -h "$DB_SERVER" -u "$DB_USER" -p <<HERE
+    mysql -h "$DB_SERVER" -u "$DB_PRIV_USER" -p <<HERE
         CREATE DATABASE IF NOT EXISTS ${DB_COPY_NAME};
         GRANT ALL ON ${DB_COPY_NAME}.* TO ${DB_COPY_USER}@'${DB_COPY_ACCESS_HOST}' IDENTIFIED BY '${DB_COPY_PASS}';
         FLUSH PRIVILEGES;
@@ -139,11 +139,11 @@ copy_database_remote() {
     #
     echo "copying database on remote server..."
     echo "dumping..."
-    mysqldump -h "$DB_SERVER" -u "$DB_USER" -p "$DB_ORIG_NAME" > db-tmp.sql
+    mysqldump -h "$DB_SERVER" -u "$DB_PRIV_USER" -p "$DB_ORIG_NAME" > db-tmp.sql
     # --> use pipe here ?
     echo "inserting..."
-    mysql -h "$DB_SERVER" -u "$DB_USER" -p "$DB_COPY_NAME" < db-tmp.sql
-    #rm db-tmp.sql
+    mysql -h "$DB_SERVER" -u "$DB_PRIV_USER" -p "$DB_COPY_NAME" < db-tmp.sql
+    rm db-tmp.sql
 #    ssh "$DB_SERVER" "mysqldump $DB_ORIG_NAME | mysql $DB_COPY_NAME"
     check_exit $?
 }
@@ -155,7 +155,7 @@ edit_joomla_config() {
     # or:
     # sed "/\$user = /s/'[^']*'/'$loon'/" configuration.php
     echo "auto-edit joomla config..."
-    sudo sed -i_$(date +%Y-%m-%d.production_orig) "/\$host = /s/'[^']*'/'localhost'/" "${WEBSITE_COPY_PATH%/}"/configuration.php
+    sudo sed -i_$(date +%Y-%m-%d.production_orig) "/\$host = /s/'[^']*'/'$DB_SERVER'/" "${WEBSITE_COPY_PATH%/}"/configuration.php
     sudo sed -i "/\$user = /s/'[^']*'/'$DB_COPY_USER'/" "${WEBSITE_COPY_PATH%/}"/configuration.php
     sudo sed -i "/\$password = /s/'[^']*'/'$DB_COPY_PASS'/" "${WEBSITE_COPY_PATH%/}"/configuration.php
     sudo sed -i "/\$db = /s/'[^']*'/'$DB_COPY_NAME'/" "${WEBSITE_COPY_PATH%/}"/configuration.php
