@@ -134,6 +134,20 @@ copy_database() {
     check_exit $?
 }
 
+copy_database_remote() {
+    # copy database on remote server
+    #
+    echo "copying database on remote server..."
+    echo "dumping..."
+    mysqldump -h "$DB_SERVER" -u "$DB_USER" -p "$DB_ORIG_NAME" > db-tmp.sql
+    # --> use pipe here ?
+    echo "inserting..."
+    mysql -h "$DB_SERVER" -u "$DB_USER" -p "$DB_COPY_NAME" < db-tmp.sql
+    #rm db-tmp.sql
+#    ssh "$DB_SERVER" "mysqldump $DB_ORIG_NAME | mysql $DB_COPY_NAME"
+    check_exit $?
+}
+
 edit_joomla_config() {
     # auto-magically edit joomla config
     # e.g. using sed:
@@ -142,10 +156,10 @@ edit_joomla_config() {
     # sed "/\$user = /s/'[^']*'/'$loon'/" configuration.php
     echo "auto-edit joomla config..."
     sudo sed -i_$(date +%Y-%m-%d.production_orig) "/\$host = /s/'[^']*'/'localhost'/" "${WEBSITE_COPY_PATH%/}"/configuration.php
-    sudo sed -i "/\$user = /s/'[^']*'/'$DB_LOCAL_USER'/" "${WEBSITE_COPY_PATH%/}"/configuration.php
-    sudo sed -i "/\$password = /s/'[^']*'/'$DB_LOCAL_PASS'/" "${WEBSITE_COPY_PATH%/}"/configuration.php
-    sudo sed -i "/\$db = /s/'[^']*'/'$DB_LOCAL_NAME'/" "${WEBSITE_COPY_PATH%/}"/configuration.php
-    LOGPATH="$WEBSITE_COPY_PATH/logs"
+    sudo sed -i "/\$user = /s/'[^']*'/'$DB_COPY_USER'/" "${WEBSITE_COPY_PATH%/}"/configuration.php
+    sudo sed -i "/\$password = /s/'[^']*'/'$DB_COPY_PASS'/" "${WEBSITE_COPY_PATH%/}"/configuration.php
+    sudo sed -i "/\$db = /s/'[^']*'/'$DB_COPY_NAME'/" "${WEBSITE_COPY_PATH%/}"/configuration.php
+    #LOGPATH="$WEBSITE_COPY_PATH/logs"
     sudo sed -i \
         "s!\$log_path = '[^']*'!\$log_path = '${WEBSITE_COPY_PATH%/}/logs'!" \
         "${WEBSITE_COPY_PATH%/}"/configuration.php

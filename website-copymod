@@ -37,6 +37,11 @@ fi
 
 if $COPY_DB; then
     create_remote_db
+    copy_database_remote
+fi
+
+if $AUTO_EDIT_JOOMLA_CONFIG; then
+    edit_joomla_config
 fi
 
 echo "finished!"

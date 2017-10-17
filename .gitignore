@@ -1,3 +1,4 @@
+*.sql
 test*
 override-test/
 revamp-test_cem
