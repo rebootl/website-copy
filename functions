@@ -147,12 +147,12 @@ copy_database() {
     #
     # Settings:
     #
-    # - DB_REMOTE_SERVER
+    # - DB_SERVER
     # - DB_ORIG_NAME
     # - DB_COPY_NAME
     #
     echo "copying database from remote..."
-    ssh "$DB_REMOTE_SERVER" "mysqldump $DB_ORIG_NAME | gzip -c" \
+    ssh "$DB_SERVER" "mysqldump $DB_ORIG_NAME | gzip -c" \
         | gzip -d | mysql "$DB_COPY_NAME"
     check_exit $?
 }
