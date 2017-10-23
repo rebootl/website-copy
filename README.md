@@ -4,9 +4,7 @@ modular script to create copies of websites including databases (mysql)
 
 - automatic adaption of config files for Joomla websites
 
-WIP: currently making it modular to allow different scenarios
-
-e.g.
+Currently implemented scenarios include:
 
 Scenario 1)
 
@@ -22,6 +20,17 @@ script naming conv.: `website-copymod-r-l-rdb-ldb`
 where `-r-l` stands for remote-website to local-website
 and `-rdb-ldb` for remote-db to local-db
 
+required permissions (also see notes below):
+
+- local sudo
+- ssh access (remote)
+- mysql access using .my.cnf
+
+the database is safely transferred using ssh
+(encrypted and compressed using gzip)
+
+files are transferred using rsync (--> encrypted ?)
+
 Scenario 2)
 
     production site
@@ -34,6 +43,15 @@ Scenario 2)
 
 script naming conv.: `website-copymod-l-l-rdb-rdb`
 
+required permissions (also see notes below):
+
+- local sudo
+- mysql access using the priviledged user set in config
+  (the script will ask for a password)
+
+_in this scenario the database will be transferred unencrypted!_
+
+
 
 usage (always on local server);
 
@@ -41,11 +59,11 @@ usage (always on local server);
 
 using one config file per-website
 multiple copies of one website can be created under different
-names / using separate configs
+names, using separate configs
 
-required permissions:
+notes on permissions:
 
-- ssh access is required on the remote host(s)
+- ssh access on the remote host(s)
   (incl. read permission for website files)
   atm. the user calling the script is used
   to simplify logins ssh keys could be used,
@@ -61,10 +79,6 @@ required permissions:
   user=mysqluser
   password=mysecretsqlpassword
 
-files are transferred using rsync (--> encrypted ?)
-
-the database is safely transferred using ssh
-(encrypted and compressed using gzip)
 
 using rsync, ssh, gzip
 mysqldump, mysql/mysqladmin (?)

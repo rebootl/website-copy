@@ -190,6 +190,8 @@ edit_joomla_config() {
     # or:
     # sed "/\$user = /s/'[^']*'/'$loon'/" configuration.php
     #
+    # evtl. use sed -e instead of single calls
+    #
     # Settings:
     #
     # - WEBSITE_COPY_PATH
