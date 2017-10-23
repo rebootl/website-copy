@@ -7,28 +7,6 @@
 # website remote-to-local
 # database remote-to-local
 #
-# expected config options
-#
-# for copy_files:
-# - COPY_FILES
-# - WEBSITE_LOCAL_USER
-# - WEBSITE_LOCAL_GROUP
-# - WEBSITE_REMOTE_SERVER
-# - WEBSITE_ORIG_PATH
-# - WEBSITE_COPY_PATH
-#
-# for override files:
-# - OVERRIDE_FILES
-# - WEBSITE_LOCAL_USER
-# - OVERRIDE_PATH
-#
-# for copy database:
-# - COPY_DB
-# - DB_REMOTE_SERVER
-# - DB_ORIG_NAME
-# - DB_COPY_NAME
-# - DB_COPY_USER
-# - DB_COPY_PASS
 
 . functions
 

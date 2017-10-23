@@ -40,6 +40,15 @@ copy_files() {
     # remote path includes always a trailing slash,
     # by `parameter substitution`, e.g.: "${var%/}"/
     # stripping if present and readding to avoid doubles
+    #
+    # Settings:
+    #
+    # - WEBSITE_LOCAL_USER
+    # - WEBSITE_LOCAL_GROUP
+    # - WEBSITE_REMOTE_SERVER
+    # - WEBSITE_ORIG_PATH
+    # - WEBSITE_COPY_PATH
+    #
     echo "copying files..."
     sudo \
         rsync -rlp --owner --group \
@@ -58,6 +67,12 @@ copy_files_local() {
     # remote path includes always a trailing slash,
     # by `parameter substitution`, e.g.: "${var%/}"/
     # stripping if present and readding to avoid doubles
+    #
+    # Settings:
+    #
+    # - WEBSITE_ORIG_PATH
+    # - WEBSITE_COPY_PATH
+    #
     echo "copying files..."
     sudo \
         rsync -au \
@@ -68,6 +83,13 @@ copy_files_local() {
 
 override_files() {
     # copying files from override directory
+    #
+    # Settings:
+    #
+    # - WEBSITE_LOCAL_USER
+    # - OVERRIDE_PATH
+    # - WEBSITE_COPY_PATH
+    #
     echo "copying files from override directory..."
     sudo -u "$WEBSITE_LOCAL_USER" \
         cp -dpr "${OVERRIDE_PATH%/}"/. "$WEBSITE_COPY_PATH"
@@ -78,6 +100,13 @@ create_local_db() {
     # create new db on local instance
     #
     # ref: http://stackoverflow.com/questions/13357760/mysql-create-user-if-not-exists#
+    #
+    # Settings:
+    #
+    # - DB_COPY_NAME
+    # - DB_COPY_USER
+    # - DB_COPY_PASS
+    #
     echo "creating local database..."
     mysql <<HERE
         CREATE DATABASE IF NOT EXISTS ${DB_COPY_NAME};
@@ -91,6 +120,16 @@ create_remote_db() {
     # create new db on remote instance
     #
     # ref: http://stackoverflow.com/questions/13357760/mysql-create-user-if-not-exists#
+    #
+    # Settings:
+    #
+    # - DB_SERVER
+    # - DB_PRIV_USER
+    # - DB_COPY_NAME
+    # - DB_COPY_USER
+    # - DB_COPY_ACCESS_HOST
+    # - DB_COPY_PASS
+    #
     echo "creating remote database..."
     mysql -h "$DB_SERVER" -u "$DB_PRIV_USER" -p <<HERE
         CREATE DATABASE IF NOT EXISTS ${DB_COPY_NAME};
@@ -105,6 +144,13 @@ copy_database() {
     # using ssh, mysqldump, mysql and gzip
     #
     # ref: http://tltech.com/info/mysql-via-ssh/
+    #
+    # Settings:
+    #
+    # - DB_REMOTE_SERVER
+    # - DB_ORIG_NAME
+    # - DB_COPY_NAME
+    #
     echo "copying database from remote..."
     ssh "$DB_REMOTE_SERVER" "mysqldump $DB_ORIG_NAME | gzip -c" \
         | gzip -d | mysql "$DB_COPY_NAME"
@@ -114,6 +160,13 @@ copy_database() {
 copy_database_remote() {
     # copy database on remote server (not encrypted)
     # using mysqldump and mysql (creates a local dump, temporary)
+    #
+    # Settings:
+    #
+    # - DB_SERVER
+    # - DB_PRIV_USER
+    # - DB_ORIG_NAME
+    # - DB_COPY_NAME
     #
     DB_TMPFILE="db-tmp.sql"
     echo "copying database on remote server..."
@@ -136,6 +189,15 @@ edit_joomla_config() {
     # sed "s/\$user = '[^']*'/\$user = \'$loon\'/" configuration.php
     # or:
     # sed "/\$user = /s/'[^']*'/'$loon'/" configuration.php
+    #
+    # Settings:
+    #
+    # - WEBSITE_COPY_PATH
+    # - DB_SERVER
+    # - DB_COPY_NAME
+    # - DB_COPY_USER
+    # - DB_COPY_PASS
+    #
     echo "auto-edit joomla config..."
     sudo sed -i_$(date +%Y-%m-%d.production_orig) "/\$host = /s/'[^']*'/'$DB_SERVER'/" "${WEBSITE_COPY_PATH%/}"/configuration.php
     sudo sed -i "/\$user = /s/'[^']*'/'$DB_COPY_USER'/" "${WEBSITE_COPY_PATH%/}"/configuration.php
