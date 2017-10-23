@@ -1,0 +1,54 @@
+#!/bin/bash
+#
+# modular script to copy websites
+#
+# module -r-l-rdb-ldb
+#
+# website remote-to-local
+# database remote-to-local
+#
+# expected config options
+#
+# for copy_files:
+# - COPY_FILES
+# - WEBSITE_LOCAL_USER
+# - WEBSITE_LOCAL_GROUP
+# - WEBSITE_REMOTE_SERVER
+# - WEBSITE_ORIG_PATH
+# - WEBSITE_COPY_PATH
+#
+# for override files:
+# - OVERRIDE_FILES
+# - WEBSITE_LOCAL_USER
+# - OVERRIDE_PATH
+#
+# for copy database:
+# - COPY_DB
+# - DB_REMOTE_SERVER
+# - DB_ORIG_NAME
+# - DB_COPY_NAME
+# - DB_COPY_USER
+# - DB_COPY_PASS
+
+. functions
+
+check_args "$@"
+
+if $COPY_FILES; then
+    copy_files
+fi
+
+if $OVERRIDE_FILES; then
+    override_files
+fi
+
+if $COPY_DB; then
+    create_local_db
+    copy_database
+fi
+
+if $AUTO_EDIT_JOOMLA_CONFIG; then
+    edit_joomla_config
+fi
+
+echo "finished!"

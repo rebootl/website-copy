@@ -77,20 +77,11 @@ override_files() {
 create_local_db() {
     # create new db on local instance
     #
-    # mysql > 5.7.6
-    #    CREATE USER IF NOT EXISTS ${DB_LOCAL_USER} IDENTIFIED BY ${DB_LOCAL_PASS};
-    #    GRANT ALL PRIVILEGES ON ${DB_LOCAL_NAME}.* TO ${DB_LOCAL_USER}@'localhost'
-    # --> doesn't work
-    #
-    # for mysql below this use something like:
-    # GRANT ALL ON `database`.* TO 'user'@'localhost' IDENTIFIED BY 'password';
-    # ==> works
-    #
-    # - http://stackoverflow.com/questions/13357760/mysql-create-user-if-not-exists#
+    # ref: http://stackoverflow.com/questions/13357760/mysql-create-user-if-not-exists#
     echo "creating local database..."
     mysql <<HERE
-        CREATE DATABASE IF NOT EXISTS ${DB_LOCAL_NAME};
-        GRANT ALL ON ${DB_LOCAL_NAME}.* TO ${DB_LOCAL_USER}@'localhost' IDENTIFIED BY '${DB_LOCAL_PASS}';
+        CREATE DATABASE IF NOT EXISTS ${DB_COPY_NAME};
+        GRANT ALL ON ${DB_COPY_NAME}.* TO ${DB_COPY_USER}@'localhost' IDENTIFIED BY '${DB_COPY_PASS}';
         FLUSH PRIVILEGES;
 HERE
     check_exit $?
@@ -99,16 +90,7 @@ HERE
 create_remote_db() {
     # create new db on remote instance
     #
-    # mysql > 5.7.6
-    #    CREATE USER IF NOT EXISTS ${DB_LOCAL_USER} IDENTIFIED BY ${DB_LOCAL_PASS};
-    #    GRANT ALL PRIVILEGES ON ${DB_LOCAL_NAME}.* TO ${DB_LOCAL_USER}@'localhost'
-    # --> doesn't work
-    #
-    # for mysql below this use something like:
-    # GRANT ALL ON `database`.* TO 'user'@'localhost' IDENTIFIED BY 'password';
-    # ==> works
-    #
-    # - http://stackoverflow.com/questions/13357760/mysql-create-user-if-not-exists#
+    # ref: http://stackoverflow.com/questions/13357760/mysql-create-user-if-not-exists#
     echo "creating remote database..."
     mysql -h "$DB_SERVER" -u "$DB_PRIV_USER" -p <<HERE
         CREATE DATABASE IF NOT EXISTS ${DB_COPY_NAME};
@@ -119,38 +101,38 @@ HERE
 }
 
 copy_database() {
-    # copy database from remote to local
+    # copy database from remote to local (encrypted)
+    # using ssh, mysqldump, mysql and gzip
     #
     # ref: http://tltech.com/info/mysql-via-ssh/
-    # mysql destdb < <(ssh sourceserver.example.com "mysqldump sourcedb")
-    # sudo ??
-    # or ssh sourceserver.example.com "mysqldump sourcedb" | mysql destdb
-    #
-    # tested: ssh r.. "mysqldump joomla_....| gzip" > joomla_.....dump.gz
-    # works!
     echo "copying database from remote..."
-    ssh "$DB_REMOTE_SERVER" "mysqldump $DB_REMOTE_NAME | gzip -c" \
-        | gzip -d | mysql "$DB_LOCAL_NAME"
+    ssh "$DB_REMOTE_SERVER" "mysqldump $DB_ORIG_NAME | gzip -c" \
+        | gzip -d | mysql "$DB_COPY_NAME"
     check_exit $?
 }
 
 copy_database_remote() {
-    # copy database on remote server
+    # copy database on remote server (not encrypted)
+    # using mysqldump and mysql (creates a local dump, temporary)
     #
+    DB_TMPFILE="db-tmp.sql"
     echo "copying database on remote server..."
+    # using pipe, doesn't work (?)
+    #mysqldump -h "$DB_SERVER" -u "$DB_PRIV_USER" -p "$DB_ORIG_NAME" | \
+    #mysql -h "$DB_SERVER" -u "$DB_PRIV_USER" -p "$DB_COPY_NAME"
     echo "dumping..."
-    mysqldump -h "$DB_SERVER" -u "$DB_PRIV_USER" -p "$DB_ORIG_NAME" > db-tmp.sql
-    # --> use pipe here ?
+    mysqldump -h "$DB_SERVER" -u "$DB_PRIV_USER" -p "$DB_ORIG_NAME" > "$DB_TMPFILE"
     echo "inserting..."
-    mysql -h "$DB_SERVER" -u "$DB_PRIV_USER" -p "$DB_COPY_NAME" < db-tmp.sql
+    mysql -h "$DB_SERVER" -u "$DB_PRIV_USER" -p "$DB_COPY_NAME" < "$DB_TMPFILE"
     rm db-tmp.sql
-#    ssh "$DB_SERVER" "mysqldump $DB_ORIG_NAME | mysql $DB_COPY_NAME"
     check_exit $?
 }
 
 edit_joomla_config() {
     # auto-magically edit joomla config
-    # e.g. using sed:
+    # using sed
+    #
+    # e.g.:
     # sed "s/\$user = '[^']*'/\$user = \'$loon\'/" configuration.php
     # or:
     # sed "/\$user = /s/'[^']*'/'$loon'/" configuration.php
@@ -159,15 +141,10 @@ edit_joomla_config() {
     sudo sed -i "/\$user = /s/'[^']*'/'$DB_COPY_USER'/" "${WEBSITE_COPY_PATH%/}"/configuration.php
     sudo sed -i "/\$password = /s/'[^']*'/'$DB_COPY_PASS'/" "${WEBSITE_COPY_PATH%/}"/configuration.php
     sudo sed -i "/\$db = /s/'[^']*'/'$DB_COPY_NAME'/" "${WEBSITE_COPY_PATH%/}"/configuration.php
-    #LOGPATH="$WEBSITE_COPY_PATH/logs"
     sudo sed -i \
         "s!\$log_path = '[^']*'!\$log_path = '${WEBSITE_COPY_PATH%/}/logs'!" \
         "${WEBSITE_COPY_PATH%/}"/configuration.php
     sudo sed -i \
         "s!\$tmp_path = '[^']*'!\$tmp_path = '${WEBSITE_COPY_PATH%/}/tmp'!" \
         "${WEBSITE_COPY_PATH%/}"/configuration.php
-#    sudo sed -i "/\$log_path = /s/'[^']*'/'$LOGPATH'/" "${WEBSITE_COPY_PATH%/}"/configuration.php
-#    TMPPATH="${WEBSITE_COPY_PATH%/}/tmp"
-#    sudo sed -i "/\$tmp_path = /s/'[^']*'/'$TMPPATH'/" "${WEBSITE_COPY_PATH%/}"/configuration.php
-
 }
