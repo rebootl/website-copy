@@ -4,9 +4,14 @@ modular script to create copies of websites including databases (mysql)
 
 - automatic adaption of config files for Joomla websites
 
-Currently implemented scenarios include:
+Currently implemented modules include:
 
-Scenario 1)
+__-r-l-rdb-ldb__
+
+where `-r-l` stands for remote-website to local-website
+and `-rdb-ldb` for remote-db to local-db
+
+Scenario:
 
     production site
       - web server (remote)
@@ -14,11 +19,6 @@ Scenario 1)
 
     test site (copy created by script)
       - web and db server (local)
-
-script naming conv.: `website-copymod-r-l-rdb-ldb`
-
-where `-r-l` stands for remote-website to local-website
-and `-rdb-ldb` for remote-db to local-db
 
 required permissions (also see notes below):
 
@@ -31,7 +31,11 @@ the database is safely transferred using ssh
 
 files are transferred using rsync (--> encrypted ?)
 
-Scenario 2)
+__-l-l-rdb-rdb__
+
+local-website to local-website and remote-db to remote-db
+
+Scenario:
 
     production site
       - web server (local)
@@ -41,15 +45,13 @@ Scenario 2)
       - web server (local)
       - db server (remote)
 
-script naming conv.: `website-copymod-l-l-rdb-rdb`
-
 required permissions (also see notes below):
 
 - local sudo
 - mysql access using the priviledged user set in config
   (the script will ask for a password)
 
-_in this scenario the database will be transferred unencrypted!_
+__in this scenario the database will be transferred unencrypted!__
 
 
 
