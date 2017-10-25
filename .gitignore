@@ -1,5 +1,5 @@
 *.sql
 test*
-override-test/
-revamp-test_cem
-revamp-it.ch-test-flunder.config
+override-*/
+configs/*
+!configs/example.config
