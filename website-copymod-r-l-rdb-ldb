@@ -26,6 +26,7 @@ if $COPY_DB; then
 fi
 
 if $AUTO_EDIT_JOOMLA_CONFIG; then
+    DB_SERVER="localhost"
     edit_joomla_config
 fi
 

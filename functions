@@ -53,7 +53,7 @@ copy_files() {
     sudo \
         rsync -rlp --owner --group \
             --chown="$WEBSITE_LOCAL_USER:$WEBSITE_LOCAL_GROUP" \
-            "$ME"@"$WEBSITE_REMOTE_SERVER":"${WEBSITE_ORIG_PATH%/}"/ \
+            "$USER"@"$WEBSITE_REMOTE_SERVER":"${WEBSITE_ORIG_PATH%/}"/ \
             "$WEBSITE_COPY_PATH"
     check_exit $?
 }
