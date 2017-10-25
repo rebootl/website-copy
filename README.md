@@ -1,5 +1,3 @@
-_WIP / in development_
-
 modular script to create copies of websites including databases (mysql)
 
 - automatic adaption of config files for Joomla websites
