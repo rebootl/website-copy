@@ -2,6 +2,14 @@ modular script to create copies of websites including databases (mysql)
 
 - automatic adaption of config files for Joomla websites
 
+usage (always on local server);
+
+    ./website-copy<mod> <config-file>
+
+using one config file per-website
+multiple copies of one website can be created under different
+names, using separate configs
+
 Currently implemented modules include:
 
 __-r-l-rdb-ldb__
@@ -51,16 +59,6 @@ required permissions (also see notes below):
 
 __in this scenario the database will be transferred unencrypted!__
 
-
-
-usage (always on local server);
-
-    ./website-copy<mod> <config-file>
-
-using one config file per-website
-multiple copies of one website can be created under different
-names, using separate configs
-
 notes on permissions:
 
 - ssh access on the remote host(s)
@@ -78,7 +76,6 @@ notes on permissions:
   [mysqldump]
   user=mysqluser
   password=mysecretsqlpassword
-
 
 using rsync, ssh, gzip
 mysqldump, mysql/mysqladmin (?)
