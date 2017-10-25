@@ -10,6 +10,8 @@ using one config file per-website
 multiple copies of one website can be created under different
 names, using separate configs
 
+for the available config options and functions, see the `functions` file
+
 Currently implemented modules include:
 
 __-r-l-rdb-ldb__
