@@ -72,16 +72,16 @@ notes on permissions:
 - sudo local for writing website files with
   configured user
 
-- mysql access must be configured using ~/.my.cnf files
-  on the local and the remote host
-  ~/.my.cnf format:
-  [mysqldump]
-  user=mysqluser
-  password=mysecretsqlpassword
+- if needed set up mysql access by .my.cnf files
+  e.g. ~/.my.cnf:
+~~~
+[mysqldump]
+user=mysqluser
+password=mysecretsqlpassword
+~~~
 
 using rsync, ssh, gzip
-mysqldump, mysql/mysqladmin (?)
+mysqldump, mysql
 
-cem, 2016-09-01
-
+2016-09-01, initial
 2017-10-09, updated
