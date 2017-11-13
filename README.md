@@ -63,17 +63,15 @@ __in this scenario the database will be transferred unencrypted!__
 
 notes on permissions:
 
-- ssh access on the remote host(s)
-  (incl. read permission for website files)
-  atm. the user calling the script is used
-  to simplify logins ssh keys could be used,
+- to simplify login ssh keys could be used,
   this is set-up independently from this script
 
-- sudo local for writing website files with
+- local sudo is needed for writing website files with
   configured user
 
 - if needed set up mysql access by .my.cnf files
-  e.g. ~/.my.cnf:
+
+e.g. ~/.my.cnf:
 ~~~
 [mysqldump]
 user=mysqluser
@@ -84,4 +82,5 @@ using rsync, ssh, gzip
 mysqldump, mysql
 
 2016-09-01, initial
+
 2017-10-09, updated
