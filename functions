@@ -131,6 +131,7 @@ create_remote_db() {
     # - DB_COPY_PASS
     #
     echo "creating remote database..."
+    echo "Priviledged DB User: $DB_PRIV_USER"
     mysql -h "$DB_SERVER" -u "$DB_PRIV_USER" -p <<HERE
         CREATE DATABASE IF NOT EXISTS ${DB_COPY_NAME};
         GRANT ALL ON ${DB_COPY_NAME}.* TO ${DB_COPY_USER}@'${DB_COPY_ACCESS_HOST}' IDENTIFIED BY '${DB_COPY_PASS}';
@@ -174,8 +175,10 @@ copy_database_remote() {
     #mysqldump -h "$DB_SERVER" -u "$DB_PRIV_USER" -p "$DB_ORIG_NAME" | \
     #mysql -h "$DB_SERVER" -u "$DB_PRIV_USER" -p "$DB_COPY_NAME"
     echo "dumping..."
+    echo "Priviledged DB User: $DB_PRIV_USER"
     mysqldump -h "$DB_SERVER" -u "$DB_PRIV_USER" -p "$DB_ORIG_NAME" > "$DB_TMPFILE"
     echo "inserting..."
+    echo "Priviledged DB User: $DB_PRIV_USER"
     mysql -h "$DB_SERVER" -u "$DB_PRIV_USER" -p "$DB_COPY_NAME" < "$DB_TMPFILE"
     rm db-tmp.sql
     check_exit $?
