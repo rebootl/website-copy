@@ -204,7 +204,7 @@ edit_joomla_config() {
     # - DB_COPY_PASS
     #
     echo "auto-edit joomla config..."
-    sudo sed -i_$(date +%Y-%m-%d.production_orig) "/\$host = /s/'[^']*'/'$DB_SERVER'/" "${WEBSITE_COPY_PATH%/}"/configuration.php
+    sudo sed -i "/\$host = /s/'[^']*'/'$DB_SERVER'/" "${WEBSITE_COPY_PATH%/}"/configuration.php
     sudo sed -i "/\$user = /s/'[^']*'/'$DB_COPY_USER'/" "${WEBSITE_COPY_PATH%/}"/configuration.php
     sudo sed -i "/\$password = /s/'[^']*'/'$DB_COPY_PASS'/" "${WEBSITE_COPY_PATH%/}"/configuration.php
     sudo sed -i "/\$db = /s/'[^']*'/'$DB_COPY_NAME'/" "${WEBSITE_COPY_PATH%/}"/configuration.php
